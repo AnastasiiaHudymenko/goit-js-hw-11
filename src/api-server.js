@@ -11,7 +11,7 @@ export default class ImagesApiServer {
   async fetchRequest() {
     try {
       const response = await axios.get(
-        `${BASE_URL}?key=${API_KEY}&q=${this.userSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=40`
+        `${BASE_URL}?key=${API_KEY}&q=${this.userSearch}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=200`
       );
       this.page += 1;
       return response.data;
