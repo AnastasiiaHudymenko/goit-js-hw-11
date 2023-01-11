@@ -20,7 +20,7 @@ const btnLoadMore = new BtnLoadMore({
 refs.form.addEventListener('submit', onForm);
 btnLoadMore.refs.btnLoadMore.addEventListener('click', onLoadMore);
 
-function onForm(event) {
+async function onForm(event) {
   event.preventDefault();
   resetGallery();
   btnLoadMore.hide();
@@ -28,30 +28,43 @@ function onForm(event) {
   imagesApiServer.query = event.currentTarget.elements.searchQuery.value;
 
   imagesApiServer.resetPage();
-  imagesApiServer
-    .fetchRequest()
-    .then(images => {
-      if (!images.hits.length) {
-        return Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-      }
-
-      renderGalleryCard(createGalleryCard(images, refs, btnLoadMore));
-      lightbox.refresh();
-      btnLoadMore.show();
-      Notify.info(`Hooray! We found ${images.totalHits} images.`);
-    })
-    .catch(error => {
-      console.log(error);
-    });
-}
-
-function onLoadMore() {
-  imagesApiServer.fetchRequest().then(images => {
+  try {
+    const images = await imagesApiServer.fetchRequest();
+    if (!images.hits.length) {
+      return Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    }
     renderGalleryCard(createGalleryCard(images, refs, btnLoadMore));
     lightbox.refresh();
-  });
+    btnLoadMore.show();
+    Notify.info(`Hooray! We found ${images.totalHits} images.`);
+  } catch (error) {
+    console.log(error);
+  }
+
+  // .then(images => {
+  //   if (!images.hits.length) {
+  //     return Notify.failure(
+  //       'Sorry, there are no images matching your search query. Please try again.'
+  //     );
+  //   }
+
+  // })
+  // .catch(error => {
+  //   console.log(error);
+  // });
+}
+
+async function onLoadMore() {
+  const images = await imagesApiServer.fetchRequest();
+  renderGalleryCard(createGalleryCard(images, refs, btnLoadMore));
+  lightbox.refresh();
+
+  //   .then(images => {
+  //   renderGalleryCard(createGalleryCard(images, refs, btnLoadMore));
+  //   lightbox.refresh();
+  // });
 }
 
 function renderGalleryCard(gallery) {
